@@ -1,0 +1,139 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Dashboard — ML Portfolio{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo" style="font-family:'Orbitron',monospace;color:#00ff41;text-shadow:0 0 8px rgba(0,255,65,0.4);">ML.DEV</div>
+    <ul class="sidebar-nav" style="font-family:'Share Tech Mono',monospace;">
+      <li><a href="{% url 'dashboard' %}">📊 dashboard</a></li>
+      <li><a href="{% url 'edit_profile' %}">👤 profile</a></li>
+      <li><a href="{% url 'add_education' %}">🎓 + education</a></li>
+      <li><a href="{% url 'add_experience' %}">💼 + experience</a></li>
+      <li><a href="{% url 'add_skill' %}">⚡ + skill</a></li>
+      <li><a href="{% url 'add_project' %}">🤖 + project</a></li>
+      <li><a href="/#resume">📄 resume</a></li>
+      <li><a href="/">🌐 view_site</a></li>
+      <li><a href="/logout/" style="color:#4a8c4a;">🚪 logout</a></li>
+    </ul>
+  </aside>
+  <main class="dash-main">
+    <div class="dash-header">
+      <div>
+        <p style="color:#00ff41;font-size:.75rem;letter-spacing:.15em;margin-bottom:.3rem;">// CONTROL_PANEL</p>
+        <h1 class="dash-title" style="color:#ccffcc;">Dashboard</h1>
+        <p style="color:#4a8c4a;">&gt; session: {{ user.username }}@ml-portfolio</p>
+      </div>
+      <a href="{% url 'edit_profile' %}" class="btn btn-primary">[ edit_profile() ]</a>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-number">{{ projects.count }}</div><div class="stat-label">PROJECTS</div></div>
+      <div class="stat-card"><div class="stat-number">{{ skills.count }}</div><div class="stat-label">SKILLS</div></div>
+      <div class="stat-card"><div class="stat-number">{{ experiences.count }}</div><div class="stat-label">EXPERIENCE</div></div>
+      <div class="stat-card"><div class="stat-number">{{ educations.count }}</div><div class="stat-label">EDUCATION</div></div>
+      {% if user.is_staff %}<div class="stat-card"><div class="stat-number">{{ unread_count }}</div><div class="stat-label">MESSAGES</div></div>{% endif %}
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <h3 class="dash-section-title" style="color:#ccffcc;">// PROJECTS</h3>
+        <a href="{% url 'add_project' %}" class="btn btn-primary btn-sm">[ + add ]</a>
+      </div>
+      {% if projects %}
+      <table class="data-table">
+        <tr><th>TITLE</th><th>TECHNOLOGIES</th><th>FEATURED</th><th>ACTIONS</th></tr>
+        {% for p in projects %}
+        <tr>
+          <td style="color:#ccffcc;">{{ p.title }}</td>
+          <td><span style="color:#4a8c4a;">{{ p.technologies|truncatechars:40 }}</span></td>
+          <td>{% if p.featured %}<span class="badge badge-green">YES</span>{% else %}<span class="badge badge-yellow">NO</span>{% endif %}</td>
+          <td style="display:flex;gap:.5rem;">
+            <a href="{% url 'edit_project' p.pk %}" class="btn btn-outline btn-sm">edit</a>
+            <a href="{% url 'delete_project' p.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete?')">del</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}<p style="color:#4a8c4a;">&gt; No projects yet.</p>{% endif %}
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <h3 class="dash-section-title" style="color:#ccffcc;">// SKILLS</h3>
+        <a href="{% url 'add_skill' %}" class="btn btn-primary btn-sm">[ + add ]</a>
+      </div>
+      {% if skills %}
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+        {% for skill in skills %}
+        <span class="tech-tag" style="display:flex;align-items:center;gap:.4rem;">
+          {{ skill.name }} ({{ skill.proficiency }}%)
+          <a href="{% url 'delete_skill' skill.pk %}" onclick="return confirm('Remove?')" style="color:#ff4141;font-size:.8rem;">✕</a>
+        </span>
+        {% endfor %}
+      </div>
+      {% else %}<p style="color:#4a8c4a;">&gt; No skills yet.</p>{% endif %}
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <h3 class="dash-section-title" style="color:#ccffcc;">// EXPERIENCE</h3>
+        <a href="{% url 'add_experience' %}" class="btn btn-primary btn-sm">[ + add ]</a>
+      </div>
+      {% if experiences %}
+      <table class="data-table">
+        <tr><th>POSITION</th><th>COMPANY</th><th>PERIOD</th><th>ACTIONS</th></tr>
+        {% for exp in experiences %}
+        <tr>
+          <td style="color:#ccffcc;">{{ exp.position }}</td><td style="color:#4a8c4a;">{{ exp.company }}</td>
+          <td><span style="color:#4a8c4a;">{{ exp.start_date|date:"M Y" }} — {% if exp.currently_working %}present{% else %}{{ exp.end_date|date:"M Y" }}{% endif %}</span></td>
+          <td style="display:flex;gap:.5rem;">
+            <a href="{% url 'edit_experience' exp.pk %}" class="btn btn-outline btn-sm">edit</a>
+            <a href="{% url 'delete_experience' exp.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete?')">del</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}<p style="color:#4a8c4a;">&gt; No experience yet.</p>{% endif %}
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-section-header">
+        <h3 class="dash-section-title" style="color:#ccffcc;">// EDUCATION</h3>
+        <a href="{% url 'add_education' %}" class="btn btn-primary btn-sm">[ + add ]</a>
+      </div>
+      {% if educations %}
+      <table class="data-table">
+        <tr><th>DEGREE</th><th>INSTITUTION</th><th>PERIOD</th><th>ACTIONS</th></tr>
+        {% for edu in educations %}
+        <tr>
+          <td style="color:#ccffcc;">{{ edu.degree }}</td><td style="color:#4a8c4a;">{{ edu.institution }}</td>
+          <td><span style="color:#4a8c4a;">{{ edu.start_year }} — {% if edu.currently_studying %}present{% else %}{{ edu.end_year }}{% endif %}</span></td>
+          <td style="display:flex;gap:.5rem;">
+            <a href="{% url 'edit_education' edu.pk %}" class="btn btn-outline btn-sm">edit</a>
+            <a href="{% url 'delete_education' edu.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete?')">del</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}<p style="color:#4a8c4a;">&gt; No education yet.</p>{% endif %}
+    </div>
+
+    {% if user.is_staff and messages_list %}
+    <div class="dash-section">
+      <div class="dash-section-header"><h3 class="dash-section-title" style="color:#ccffcc;">// INBOX</h3></div>
+      <table class="data-table">
+        <tr><th>FROM</th><th>SUBJECT</th><th>DATE</th><th>STATUS</th><th>ACTION</th></tr>
+        {% for msg in messages_list %}
+        <tr>
+          <td style="color:#ccffcc;">{{ msg.name }}<br><span style="color:#4a8c4a;font-size:.78rem;">{{ msg.email }}</span></td>
+          <td style="color:#4a8c4a;">{{ msg.subject }}</td>
+          <td><span style="color:#4a8c4a;">{{ msg.sent_at|date:"d M Y" }}</span></td>
+          <td>{% if msg.is_read %}<span class="badge badge-green">READ</span>{% else %}<span class="badge badge-yellow">NEW</span>{% endif %}</td>
+          <td>{% if not msg.is_read %}<a href="{% url 'mark_message_read' msg.pk %}" class="btn btn-outline btn-sm">mark read</a>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

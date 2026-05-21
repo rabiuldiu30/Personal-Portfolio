@@ -1,0 +1,29 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Projects — ML Portfolio{% endblock %}
+{% block content %}
+<div class="section">
+  <p style="color:#00ff41;font-size:.8rem;letter-spacing:.2em;margin-bottom:.5rem;">// PROJECT_REPOSITORY</p>
+  <h2 class="section-title">ML Projects</h2>
+  <p style="color:#4a8c4a;margin-bottom:2.5rem;">&gt; Machine learning systems built for real-world problems</p>
+  {% if projects %}
+  <div class="projects-grid">
+    {% for project in projects %}
+    <div class="project-card">
+      <div class="project-body">
+        <p style="color:#00ff41;font-size:.72rem;letter-spacing:.1em;margin-bottom:.5rem;">PROJECT_{{ forloop.counter|stringformat:"02d" }} {% if project.featured %}// FEATURED{% endif %}</p>
+        <h3 class="project-title" style="color:#ccffcc;">{{ project.title }}</h3>
+        <p class="project-desc">{{ project.description }}</p>
+        <div class="tech-tags">{% for tech in project.get_technologies_list %}<span class="tech-tag">{{ tech }}</span>{% endfor %}</div>
+        <div class="project-links">
+          {% if project.github_url %}<a href="{{ project.github_url }}" class="btn btn-outline btn-sm" target="_blank">[ github ]</a>{% endif %}
+          {% if project.live_url %}<a href="{{ project.live_url }}" class="btn btn-primary btn-sm" target="_blank">[ demo → ]</a>{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color:#4a8c4a;">&gt; No projects loaded yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

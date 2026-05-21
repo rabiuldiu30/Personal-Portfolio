@@ -1,0 +1,25 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}AUTH — ML Portfolio{% endblock %}
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card" style="border-color:#1a3a1a;">
+    <p style="color:#00ff41;font-size:.75rem;letter-spacing:.15em;margin-bottom:.5rem;">// AUTHENTICATION_MODULE</p>
+    <h2 class="auth-title" style="color:#00ff41;text-shadow:0 0 10px rgba(0,255,65,0.4);">ACCESS TERMINAL</h2>
+    <p class="auth-sub">&gt; Enter credentials to initialize session</p>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group">
+        <label class="form-label" style="color:#4a8c4a;letter-spacing:.1em;">{{ field.label|upper }}</label>
+        {{ field }}
+        {% if field.errors %}<p style="color:#ff4141;font-size:.8rem;margin-top:.3rem;">&gt; ERROR: {{ field.errors.0 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:.5rem;letter-spacing:.15em;">[ AUTHENTICATE ]</button>
+    </form>
+    <p style="color:#4a8c4a;text-align:center;margin-top:1.5rem;font-size:.85rem;">
+      No account? <a href="/admin/" style="color:#00ff41;">register_user()</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

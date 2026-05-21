@@ -1,0 +1,34 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Edit Profile — ML Portfolio{% endblock %}
+{% block content %}
+<div class="page-wrap" style="max-width:800px;">
+  <a href="{% url 'dashboard' %}" class="btn btn-outline btn-sm" style="margin-bottom:1.5rem;">[ ← back_to_dashboard ]</a>
+  <div class="card">
+    <p style="color:#00ff41;font-size:.75rem;letter-spacing:.15em;margin-bottom:.5rem;">// PROFILE_CONFIG</p>
+    <h2 style="font-size:1.3rem;font-weight:700;color:#ccffcc;margin-bottom:1.5rem;">&gt; Edit Profile</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" style="color:#4a8c4a;">FULL NAME</label>{{ form.full_name }}</div>
+        <div class="form-group"><label class="form-label" style="color:#4a8c4a;">TITLE / ROLE</label>{{ form.title }}</div>
+      </div>
+      <div class="form-group"><label class="form-label" style="color:#4a8c4a;">BIO</label>{{ form.bio }}</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" style="color:#4a8c4a;">EMAIL</label>{{ form.email }}</div>
+        <div class="form-group"><label class="form-label" style="color:#4a8c4a;">PHONE</label>{{ form.phone }}</div>
+      </div>
+      <div class="form-group"><label class="form-label" style="color:#4a8c4a;">LOCATION</label>{{ form.location }}</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" style="color:#4a8c4a;">GITHUB URL</label>{{ form.github }}</div>
+        <div class="form-group"><label class="form-label" style="color:#4a8c4a;">LINKEDIN URL</label>{{ form.linkedin }}</div>
+      </div>
+      <div class="form-group"><label class="form-label" style="color:#4a8c4a;">WEBSITE</label>{{ form.website }}</div>
+      <div class="form-group"><label class="form-label" style="color:#4a8c4a;">PROFILE PICTURE</label>{{ form.profile_picture }}</div>
+      <div style="display:flex;gap:1rem;margin-top:1rem;">
+        <button type="submit" class="btn btn-primary">[ save_profile() ]</button>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline">[ cancel ]</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

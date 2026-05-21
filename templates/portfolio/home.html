@@ -1,0 +1,371 @@
+{% extends 'portfolio/base.html' %}
+{% load static %}
+{% block title %}{{ profile.full_name }} | ML Engineer{% endblock %}
+{% block content %}
+
+<!-- ══ HERO with robot background ══ -->
+<section class="hero" style="position:relative;overflow:hidden;min-height:100vh;display:flex;align-items:center;">
+
+  <!-- Background image layer -->
+  <div id="hero-bg" style="
+    position:absolute;inset:0;
+    background: url('{% static 'images/hero-bg.jpg' %}') center center / cover no-repeat;
+    z-index:0;
+    animation: heroBgZoom 18s ease-in-out infinite alternate;
+  "></div>
+
+  <!-- Dark gradient overlay so text stays readable -->
+  <div style="
+    position:absolute;inset:0;z-index:1;
+    background: linear-gradient(
+      105deg,
+      rgba(1,13,31,0.93) 0%,
+      rgba(1,13,31,0.80) 45%,
+      rgba(1,13,31,0.30) 75%,
+      rgba(1,13,31,0.10) 100%
+    );
+  "></div>
+
+  <!-- Animated scan-line shimmer over bg -->
+  <div style="position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,180,216,0.03) 3px,rgba(0,180,216,0.03) 4px);
+    animation: scanMove 8s linear infinite;
+  "></div>
+
+  <!-- Content -->
+  <div style="position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:3rem;max-width:1100px;margin:0 auto;padding:4rem 2rem;width:100%;flex-wrap:wrap;">
+
+    <!-- Left: Text -->
+    <div style="flex:1;min-width:300px;">
+      <p class="hero-greeting">// SYSTEM INITIALIZED &bull; LOADING PROFILE...</p>
+      {% if profile %}
+        <h1 class="hero-name" style="font-size:clamp(2rem,5vw,3.8rem);">{{ profile.full_name }}</h1>
+        <p class="hero-title" style="font-size:1.1rem;margin-bottom:1.2rem;">&gt; <span id="typed-role">Machine Learning Engineer</span></p>
+        <p class="hero-bio" style="color:#a8d8ea;font-size:0.97rem;max-width:520px;line-height:1.8;margin-bottom:2rem;">{{ profile.bio }}</p>
+      {% else %}
+        <h1 class="hero-name">ML ENGINEER</h1>
+      {% endif %}
+
+      <div class="hero-ctas" style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <a href="/#projects" class="btn btn-primary" style="
+          background:rgba(0,180,216,0.15);
+          border:1.5px solid #00e5ff;
+          color:#ffffff;
+          font-weight:700;
+          letter-spacing:.08em;
+          text-shadow:0 0 8px rgba(0,229,255,0.5);
+          box-shadow:0 0 18px rgba(0,180,216,0.25);
+          padding:.7rem 1.6rem;
+        ">[ view_projects() ]</a>
+        <a href="/#resume" class="btn btn-outline" style="
+          border:1.5px solid rgba(0,229,255,0.5);
+          color:#ffffff;
+          font-weight:600;
+          background:rgba(255,255,255,0.06);
+          backdrop-filter:blur(6px);
+          padding:.7rem 1.6rem;
+        ">[ get_resume() ]</a>
+        <a href="/#contact" class="btn btn-outline" style="
+          border:1.5px solid rgba(0,229,255,0.5);
+          color:#ffffff;
+          font-weight:600;
+          background:rgba(255,255,255,0.06);
+          backdrop-filter:blur(6px);
+          padding:.7rem 1.6rem;
+        ">[ contact_me() ]</a>
+      </div>
+    </div>
+
+    <!-- Right: Profile Picture -->
+    <div style="flex-shrink:0;display:flex;justify-content:flex-end;">
+      {% if profile.profile_picture %}
+        <div class="profile-ring">
+          <img src="{{ profile.profile_picture.url }}" alt="{{ profile.full_name }}">
+        </div>
+      {% else %}
+        <div class="profile-ring" style="padding:4px;">
+          <div style="width:220px;height:220px;border-radius:50%;background:#031c36;display:flex;align-items:center;justify-content:center;font-size:5rem;">🤖</div>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+<style>
+@keyframes heroBgZoom {
+  from { transform: scale(1.0) translateX(0); }
+  to   { transform: scale(1.08) translateX(-20px); }
+}
+@keyframes scanMove {
+  from { background-position: 0 0; }
+  to   { background-position: 0 100px; }
+}
+</style>
+
+<!-- Animated Stats Bar -->
+<div style="background:rgba(2,20,40,0.95);border-top:1px solid #0d3a6e;border-bottom:1px solid #0d3a6e;padding:2rem;position:relative;z-index:1;">
+  <div style="max-width:1100px;margin:0 auto;display:flex;gap:3rem;flex-wrap:wrap;justify-content:center;">
+    <div class="stat-card" style="text-align:center;border:none;background:transparent;">
+      <div class="stat-number counter-val" data-target="{{ projects|length }}" data-suffix="+">0+</div>
+      <div class="stat-label">ML PROJECTS</div>
+    </div>
+    <div class="stat-card" style="text-align:center;border:none;background:transparent;">
+      <div class="stat-number counter-val" data-target="{{ skills|length }}" data-suffix="+">0+</div>
+      <div class="stat-label">TECHNOLOGIES</div>
+    </div>
+    <div class="stat-card" style="text-align:center;border:none;background:transparent;">
+      <div class="stat-number counter-val" data-target="3" data-suffix="+">0+</div>
+      <div class="stat-label">YEARS EXP</div>
+    </div>
+    <div class="stat-card" style="text-align:center;border:none;background:transparent;">
+      <div class="stat-number counter-val" data-target="97" data-suffix="%">0%</div>
+      <div class="stat-label">MODEL ACCURACY</div>
+    </div>
+  </div>
+</div>
+
+{% if skills %}
+<div style="background:#050d1a;padding:4rem 2rem;">
+  <div style="max-width:1100px;margin:0 auto;">
+    <p style="color:#00b4d8;font-size:.8rem;letter-spacing:.2em;margin-bottom:.5rem;">// TECH_STACK</p>
+    <h2 class="section-title">Skills &amp; Technologies</h2>
+    <p style="color:#2d7da0;margin-bottom:1.5rem;">&gt; Filter by category</p>
+    <div class="skill-tabs">
+      <button class="skill-tab active" data-filter="all">All</button>
+      <button class="skill-tab" data-filter="language">Languages</button>
+      <button class="skill-tab" data-filter="framework">Frameworks</button>
+      <button class="skill-tab" data-filter="tool">Tools</button>
+      <button class="skill-tab" data-filter="database">Databases</button>
+    </div>
+    <div class="skills-grid">
+      {% for skill in skills %}
+      <div class="skill-item" data-category="{{ skill.category }}">
+        <div class="skill-header">
+          <span style="color:#caf0f8;">{{ skill.name }}</span>
+          <span style="color:#00b4d8;">{{ skill.proficiency }}%</span>
+        </div>
+        <div class="skill-bar"><div class="skill-fill" style="width:{{ skill.proficiency }}%"></div></div>
+        <p style="font-size:.72rem;color:#2d7da0;margin-top:.4rem;">{{ skill.get_category_display|upper }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if projects %}
+<div style="padding:4rem 2rem;">
+  <div style="max-width:1100px;margin:0 auto;">
+    <p style="color:#00b4d8;font-size:.8rem;letter-spacing:.2em;margin-bottom:.5rem;">// FEATURED_WORK</p>
+    <h2 class="section-title">Featured Projects</h2>
+    <p style="color:#2d7da0;margin-bottom:1.5rem;">&gt; Filter by technology</p>
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="all">All</button>
+      <button class="filter-tab" data-filter="pytorch">PyTorch</button>
+      <button class="filter-tab" data-filter="tensorflow">TensorFlow</button>
+      <button class="filter-tab" data-filter="fastapi">FastAPI</button>
+      <button class="filter-tab" data-filter="react">React</button>
+      <button class="filter-tab" data-filter="docker">Docker</button>
+    </div>
+    <div class="projects-grid">
+      {% for project in projects %}
+      <div class="project-card" data-techs="{{ project.technologies|lower }}">
+        <div class="project-body">
+          <p style="color:#00b4d8;font-size:.72rem;letter-spacing:.1em;margin-bottom:.5rem;">ML_PROJECT_{{ forloop.counter|stringformat:"02d" }}</p>
+          <h3 class="project-title" style="color:#caf0f8;">{{ project.title }}</h3>
+          <p class="project-desc">{{ project.description|truncatewords:22 }}</p>
+          <div class="tech-tags">{% for tech in project.get_technologies_list %}<span class="tech-tag">{{ tech }}</span>{% endfor %}</div>
+          <div class="project-links">
+            {% if project.github_url %}<a href="{{ project.github_url }}" class="btn btn-outline btn-sm" target="_blank">[ github ]</a>{% endif %}
+            {% if project.live_url %}<a href="{{ project.live_url }}" class="btn btn-primary btn-sm" target="_blank">[ demo → ]</a>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-3">
+      <a href="/#projects" class="btn btn-outline">[ view_all_projects() ]</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ══ AI ASSISTANT SECTION (Home Page) ══ -->
+<div style="background:linear-gradient(180deg,#010d1f 0%,#021428 50%,#010d1f 100%);padding:5rem 2rem;border-top:1px solid #0d3a6e;border-bottom:1px solid #0d3a6e;">
+  <div style="max-width:1100px;margin:0 auto;">
+
+    <p style="color:#00b4d8;font-size:.8rem;letter-spacing:.2em;margin-bottom:.5rem;">// AI_ASSISTANT</p>
+    <h2 class="section-title">Meet RAB.AI</h2>
+    <p style="color:#2d7da0;margin-bottom:2.5rem;">&gt; My personal AI — chat, explore projects, or draft a message</p>
+
+    <!-- 3-column feature grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;">
+
+      <!-- ① CHAT CARD -->
+      <div style="background:rgba(2,20,40,0.8);border:1px solid rgba(0,180,216,0.2);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:1.2rem 1.5rem;border-bottom:1px solid rgba(0,180,216,0.1);display:flex;align-items:center;gap:.75rem;background:linear-gradient(90deg,rgba(0,77,120,0.4),rgba(0,30,60,0.2));">
+          <span style="font-size:1.4rem;">💬</span>
+          <div>
+            <div style="font-family:'Orbitron',monospace;font-size:.82rem;color:#00e5ff;font-weight:700;">Ask RAB.AI</div>
+            <div style="font-size:.72rem;color:#2d7da0;font-family:'Share Tech Mono',monospace;">Conversational AI about Rabiul</div>
+          </div>
+        </div>
+        <!-- Mini chat UI -->
+        <div id="home-chat-messages" style="flex:1;padding:1rem;display:flex;flex-direction:column;gap:.6rem;min-height:200px;max-height:220px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#0d3a6e transparent;">
+          <div style="display:flex;gap:.5rem;align-items:flex-start;">
+            <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#00b4d8,#0077b6);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;">🤖</div>
+            <div style="background:rgba(0,77,120,0.4);border:1px solid rgba(0,180,216,0.15);border-radius:4px 10px 10px 10px;padding:.5rem .8rem;font-size:.82rem;color:#caf0f8;font-family:'Share Tech Mono',monospace;line-height:1.5;">
+              Hi! Ask me anything about Rabiul's skills, experience, or availability.
+            </div>
+          </div>
+        </div>
+        <!-- Quick chips -->
+        <div style="display:flex;flex-wrap:wrap;gap:.35rem;padding:.5rem 1rem;">
+          <span class="home-quick" data-q="What are Rabiul's top ML skills?" style="font-size:.7rem;padding:.22rem .6rem;border-radius:50px;background:rgba(0,100,150,0.2);border:1px solid rgba(0,180,216,0.2);color:#7ab8d0;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s;">Top skills</span>
+          <span class="home-quick" data-q="Is Rabiul available for hire?" style="font-size:.7rem;padding:.22rem .6rem;border-radius:50px;background:rgba(0,100,150,0.2);border:1px solid rgba(0,180,216,0.2);color:#7ab8d0;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s;">Hire?</span>
+          <span class="home-quick" data-q="What makes Rabiul unique as an ML engineer?" style="font-size:.7rem;padding:.22rem .6rem;border-radius:50px;background:rgba(0,100,150,0.2);border:1px solid rgba(0,180,216,0.2);color:#7ab8d0;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s;">Unique?</span>
+        </div>
+        <div style="display:flex;gap:.5rem;padding:.75rem 1rem;border-top:1px solid rgba(0,180,216,0.1);">
+          <input id="home-chat-input" type="text" placeholder="Type your question..." autocomplete="off" style="flex:1;background:rgba(0,30,60,0.6);border:1px solid rgba(0,180,216,0.2);border-radius:8px;color:#caf0f8;padding:.45rem .75rem;font-family:'Share Tech Mono',monospace;font-size:.8rem;outline:none;">
+          <button id="home-chat-send" style="background:rgba(0,180,216,0.15);border:1px solid rgba(0,229,255,0.3);color:#00e5ff;border-radius:8px;padding:.45rem .75rem;cursor:pointer;font-size:.9rem;transition:all .2s;">➤</button>
+        </div>
+      </div>
+
+      <!-- ② PROJECT EXPLAINER CARD -->
+      <div style="background:rgba(2,20,40,0.8);border:1px solid rgba(0,180,216,0.2);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:1.2rem 1.5rem;border-bottom:1px solid rgba(0,180,216,0.1);display:flex;align-items:center;gap:.75rem;background:linear-gradient(90deg,rgba(0,77,120,0.4),rgba(0,30,60,0.2));">
+          <span style="font-size:1.4rem;">🔍</span>
+          <div>
+            <div style="font-family:'Orbitron',monospace;font-size:.82rem;color:#00e5ff;font-weight:700;">Project Explainer</div>
+            <div style="font-size:.72rem;color:#2d7da0;font-family:'Share Tech Mono',monospace;">AI explains any project in detail</div>
+          </div>
+        </div>
+        <div style="padding:1rem;flex:1;display:flex;flex-direction:column;gap:.4rem;">
+          <p style="font-size:.75rem;color:#2d7da0;font-family:'Share Tech Mono',monospace;margin-bottom:.3rem;">&gt; Select a project:</p>
+          <div class="home-explain-btn" data-title="BanglaLLM — Bengali Language Model" data-tech="PyTorch, HuggingFace, LoRA, FastAPI" style="padding:.5rem .75rem;border:1px solid rgba(0,180,216,0.15);border-radius:7px;background:rgba(0,50,90,0.3);cursor:pointer;transition:all .2s;font-size:.8rem;color:#caf0f8;font-family:'Share Tech Mono',monospace;">🧠 BanglaLLM</div>
+          <div class="home-explain-btn" data-title="MedVision — Medical Image Classifier" data-tech="TensorFlow, EfficientNet-B4, GradCAM" style="padding:.5rem .75rem;border:1px solid rgba(0,180,216,0.15);border-radius:7px;background:rgba(0,50,90,0.3);cursor:pointer;transition:all .2s;font-size:.8rem;color:#caf0f8;font-family:'Share Tech Mono',monospace;">🏥 MedVision</div>
+          <div class="home-explain-btn" data-title="CropYield AI — Agricultural Prediction" data-tech="PyTorch, LSTM+Attention, MLflow" style="padding:.5rem .75rem;border:1px solid rgba(0,180,216,0.15);border-radius:7px;background:rgba(0,50,90,0.3);cursor:pointer;transition:all .2s;font-size:.8rem;color:#caf0f8;font-family:'Share Tech Mono',monospace;">🌾 CropYield AI</div>
+          <div class="home-explain-btn" data-title="RecoSys — Recommendation Engine" data-tech="PySpark, FastAPI, Redis, PostgreSQL" style="padding:.5rem .75rem;border:1px solid rgba(0,180,216,0.15);border-radius:7px;background:rgba(0,50,90,0.3);cursor:pointer;transition:all .2s;font-size:.8rem;color:#caf0f8;font-family:'Share Tech Mono',monospace;">⚡ RecoSys</div>
+          <div class="home-explain-btn" data-title="AutoML Dashboard" data-tech="Scikit-learn, Optuna, React, Django" style="padding:.5rem .75rem;border:1px solid rgba(0,180,216,0.15);border-radius:7px;background:rgba(0,50,90,0.3);cursor:pointer;transition:all .2s;font-size:.8rem;color:#caf0f8;font-family:'Share Tech Mono',monospace;">🛠 AutoML Dashboard</div>
+        </div>
+        <div id="home-explain-result" style="display:none;margin:0 1rem 1rem;padding:.75rem;background:rgba(0,50,90,0.35);border:1px solid rgba(0,180,216,0.2);border-radius:8px;font-size:.78rem;color:#caf0f8;font-family:'Share Tech Mono',monospace;line-height:1.7;"></div>
+      </div>
+
+      <!-- ③ CONTACT DRAFT CARD -->
+      <div style="background:rgba(2,20,40,0.8);border:1px solid rgba(0,180,216,0.2);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;">
+        <div style="padding:1.2rem 1.5rem;border-bottom:1px solid rgba(0,180,216,0.1);display:flex;align-items:center;gap:.75rem;background:linear-gradient(90deg,rgba(0,77,120,0.4),rgba(0,30,60,0.2));">
+          <span style="font-size:1.4rem;">✉️</span>
+          <div>
+            <div style="font-family:'Orbitron',monospace;font-size:.82rem;color:#00e5ff;font-weight:700;">Smart Contact</div>
+            <div style="font-size:.72rem;color:#2d7da0;font-family:'Share Tech Mono',monospace;">AI drafts your message</div>
+          </div>
+        </div>
+        <div style="padding:1rem;flex:1;display:flex;flex-direction:column;gap:.5rem;overflow-y:auto;">
+          <label style="font-size:.72rem;color:#2d7da0;font-family:'Share Tech Mono',monospace;letter-spacing:.08em;">YOUR NAME</label>
+          <input id="hc-name" type="text" placeholder="e.g. Sarah Ahmed" style="background:rgba(0,30,60,0.6);border:1px solid rgba(0,180,216,0.2);border-radius:6px;color:#caf0f8;padding:.4rem .7rem;font-family:'Share Tech Mono',monospace;font-size:.8rem;outline:none;width:100%;">
+          <label style="font-size:.72rem;color:#2d7da0;font-family:'Share Tech Mono',monospace;letter-spacing:.08em;">PURPOSE</label>
+          <input id="hc-purpose" type="text" placeholder="job offer / collaboration / freelance" style="background:rgba(0,30,60,0.6);border:1px solid rgba(0,180,216,0.2);border-radius:6px;color:#caf0f8;padding:.4rem .7rem;font-family:'Share Tech Mono',monospace;font-size:.8rem;outline:none;width:100%;">
+          <label style="font-size:.72rem;color:#2d7da0;font-family:'Share Tech Mono',monospace;letter-spacing:.08em;">DETAILS</label>
+          <textarea id="hc-details" rows="3" placeholder="Briefly describe what you need..." style="background:rgba(0,30,60,0.6);border:1px solid rgba(0,180,216,0.2);border-radius:6px;color:#caf0f8;padding:.4rem .7rem;font-family:'Share Tech Mono',monospace;font-size:.8rem;outline:none;width:100%;resize:none;"></textarea>
+          <button id="hc-generate" style="background:rgba(0,180,216,0.12);border:1px solid rgba(0,229,255,0.3);color:#00e5ff;border-radius:6px;padding:.5rem 1rem;font-family:'Share Tech Mono',monospace;font-size:.78rem;cursor:pointer;transition:all .2s;letter-spacing:.06em;">[ generate_message() ]</button>
+          <div id="hc-output" style="display:none;background:rgba(0,50,90,0.3);border:1px solid rgba(0,180,216,0.2);border-radius:6px;padding:.65rem;color:#caf0f8;font-size:.78rem;font-family:'Share Tech Mono',monospace;line-height:1.6;white-space:pre-wrap;"></div>
+          <button id="hc-copy" style="display:none;background:none;border:1px solid rgba(0,180,216,0.2);color:#2d7da0;border-radius:6px;padding:.3rem .75rem;font-size:.72rem;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s;">[ copy to clipboard ]</button>
+        </div>
+      </div>
+
+    </div><!-- /grid -->
+  </div>
+</div>
+
+
+
+{% endblock %}
+
+<script>
+/* Home page AI — uses same getCookie + callAI from base.html */
+document.addEventListener('DOMContentLoaded', function() {
+
+  /* ── Home Chat ── */
+  var hcMsgs  = document.getElementById('home-chat-messages');
+  var hcInput = document.getElementById('home-chat-input');
+  var hcSend  = document.getElementById('home-chat-send');
+  if (!hcMsgs || !hcInput || !hcSend) return;
+
+  var homeHistory = [];
+  var HOME_CTX = "You are RAB.AI, AI assistant for Md. Rabiul Islam, ML Engineer in Dhaka. He specialises in deep learning, NLP, computer vision. Skills: Python, TensorFlow, PyTorch, HuggingFace, FastAPI, Docker, React. 3+ years experience. Open to hire. Answer under 80 words.";
+
+  function hcAppend(role, text) {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;gap:.5rem;align-items:flex-start;margin-bottom:.4rem;' + (role==='user' ? 'flex-direction:row-reverse;' : '');
+    var av = document.createElement('div');
+    av.style.cssText = 'width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;background:' + (role==='bot' ? 'linear-gradient(135deg,#00b4d8,#0077b6)' : 'rgba(0,100,150,0.4)');
+    av.textContent = role==='bot' ? '🤖' : '👤';
+    var bub = document.createElement('div');
+    bub.style.cssText = 'max-width:82%;padding:.4rem .7rem;border-radius:' + (role==='bot' ? '4px 10px 10px 10px' : '10px 4px 10px 10px') + ';font-size:.8rem;color:#caf0f8;font-family:Share Tech Mono,monospace;line-height:1.5;border:1px solid rgba(0,180,216,0.15);background:' + (role==='bot' ? 'rgba(0,77,120,0.4)' : 'rgba(0,180,216,0.12)');
+    bub.textContent = text;
+    wrap.appendChild(av); wrap.appendChild(bub);
+    hcMsgs.appendChild(wrap);
+    hcMsgs.scrollTop = hcMsgs.scrollHeight;
+    return bub;
+  }
+
+  async function hcSendMsg(txt) {
+    if (!txt.trim()) return;
+    hcAppend('user', txt);
+    hcInput.value = '';
+    homeHistory.push({ role: 'user', content: txt });
+    hcSend.disabled = true;
+    var bub = hcAppend('bot', '...');
+    var reply = await callAI(homeHistory, HOME_CTX);
+    bub.textContent = reply;
+    homeHistory.push({ role: 'assistant', content: reply });
+    hcSend.disabled = false;
+    hcMsgs.scrollTop = hcMsgs.scrollHeight;
+  }
+
+  hcSend.addEventListener('click', function() { hcSendMsg(hcInput.value); });
+  hcInput.addEventListener('keydown', function(e) { if(e.key==='Enter') hcSendMsg(hcInput.value); });
+  document.querySelectorAll('.home-quick').forEach(function(b) {
+    b.addEventListener('click', function() { hcSendMsg(b.dataset.q); });
+  });
+
+  /* ── Home Explainer ── */
+  var heResult = document.getElementById('home-explain-result');
+  document.querySelectorAll('.home-explain-btn').forEach(function(btn) {
+    btn.addEventListener('click', async function() {
+      if (!heResult) return;
+      heResult.style.display = 'block';
+      heResult.textContent = '> analyzing...';
+      var prompt = 'Explain "' + btn.dataset.title + '" (tech: ' + btn.dataset.tech + ') in 3 sentences for a recruiter: problem solved, ML approach, why impressive.';
+      var reply = await callAI([{ role: 'user', content: prompt }], '');
+      heResult.textContent = '> ' + reply;
+    });
+  });
+
+  /* ── Home Contact Draft ── */
+  var hcGenBtn = document.getElementById('hc-generate');
+  var hcOutput = document.getElementById('hc-output');
+  var hcCopy   = document.getElementById('hc-copy');
+  if (hcGenBtn) {
+    hcGenBtn.addEventListener('click', async function() {
+      var name    = document.getElementById('hc-name').value.trim() || 'A visitor';
+      var purpose = document.getElementById('hc-purpose').value.trim() || 'general inquiry';
+      var details = document.getElementById('hc-details').value.trim();
+      hcGenBtn.textContent = '[ generating... ]'; hcGenBtn.disabled = true;
+      hcOutput.style.display = 'block'; hcOutput.textContent = '> drafting...'; hcCopy.style.display = 'none';
+      var prompt = 'Write a short professional email (under 120 words) from "' + name + '" to ML Engineer Md. Rabiul Islam for: "' + purpose + '". Details: "' + details + '". Include Subject: line.';
+      var reply = await callAI([{ role: 'user', content: prompt }], '');
+      hcOutput.textContent = reply; hcCopy.style.display = 'block';
+      hcGenBtn.textContent = '[ generate_message() ]'; hcGenBtn.disabled = false;
+    });
+    hcCopy.addEventListener('click', function() {
+      navigator.clipboard.writeText(hcOutput.textContent).then(function() {
+        hcCopy.textContent = '[ copied! ✓ ]';
+        setTimeout(function() { hcCopy.textContent = '[ copy to clipboard ]'; }, 2000);
+      });
+    });
+  }
+
+});
+</script>

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ML.Portfolio{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"></noscript>
+  <style>
+    body {
+      background: #010d1f !important;
+      background-image:
+        radial-gradient(ellipse at 15% 40%, rgba(0,100,180,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba(0,60,140,0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 55% 85%, rgba(0,140,200,0.08) 0%, transparent 45%) !important;
+      background-size: 100% 100%, 100% 100%, 100% 100% !important;
+    }
+    #particle-canvas {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+    .navbar, section, .section, .resume-page, .auth-wrapper,
+    .dash-layout, footer, .hero { position: relative; z-index: 1; }
+  </style>
+</head>
+<body>
+
+<!-- Scroll Progress Bar -->
+<div id="scroll-progress"></div>
+
+<canvas id="particle-canvas"></canvas>
+
+<nav class="navbar">
+  <a href="/" class="navbar-brand">ML</a>
+  <ul class="nav-links">
+    <li><a href="/">&gt; home</a></li>
+    <li><a href="/#about">&gt; about</a></li>
+    <li><a href="/#projects">&gt; projects</a></li>
+    <li><a href="/#resume">&gt; resume</a></li>
+    <li><a href="/#contact">&gt; contact</a></li>
+    {% if user.is_authenticated %}
+      <li><a href="{% url 'dashboard' %}" class="btn btn-outline btn-sm">[ dashboard ]</a></li>
+      <li><a href="{% url 'logout' %}" style="color:#2d7da0;">logout</a></li>
+    {% else %}
+      <li><a href="/admin/login/" class="btn btn-primary btn-sm">[ login ]</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+{% if messages %}
+  <div style="max-width:1100px;margin:1rem auto;padding:0 2rem;position:relative;z-index:10;">
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+        &gt; {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<footer style="border-top:1px solid #091f3a;padding:2rem;text-align:center;font-size:.85rem;font-family:'Share Tech Mono',monospace;position:relative;z-index:1;">
+  <p style="color:#2d7da0;">&gt; Md. Rabiul Islam &bull; Machine Learning Engineer &bull; Dhaka, Bangladesh &bull; 2025_</p>
+</footer>
+
+<!-- Back to Top -->
+<div id="back-to-top" title="Back to top">↑</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+/* ════════ PARTICLE NETWORK ════════ */
+(function () {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, particles, mouse = { x: null, y: null };
+  const CONFIG = {
+    count: 55, maxDist: 110, speed: 0.4, mouseRadius: 130,
+    colors: ['#00b4d8','#0096c7','#90e0ef','#caf0f8','#0077b6'],
+  };
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function Particle() {
+    this.x=Math.random()*W; this.y=Math.random()*H;
+    this.vx=(Math.random()-.5)*CONFIG.speed; this.vy=(Math.random()-.5)*CONFIG.speed;
+    this.r=Math.random()*1.2+1; this.pulse=Math.random()*Math.PI*2;
+    this.color=CONFIG.colors[Math.floor(Math.random()*CONFIG.colors.length)];
+  }
+  Particle.prototype.update=function(){
+    this.pulse+=.02;
+    if(mouse.x!==null){
+      const dx=this.x-mouse.x,dy=this.y-mouse.y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<CONFIG.mouseRadius&&d>0){const f=(CONFIG.mouseRadius-d)/CONFIG.mouseRadius*.06;this.vx+=(dx/d)*f;this.vy+=(dy/d)*f;}
+    }
+    this.vx*=.99;this.vy*=.99;
+    this.x+=this.vx;this.y+=this.vy;
+    if(this.x<0)this.x=W;if(this.x>W)this.x=0;if(this.y<0)this.y=H;if(this.y>H)this.y=0;
+  };
+  Particle.prototype.draw=function(){
+    const r=this.r+Math.sin(this.pulse)*.5;
+    ctx.beginPath();ctx.arc(this.x,this.y,r,0,Math.PI*2);
+    ctx.fillStyle=this.color;ctx.shadowColor=this.color;ctx.shadowBlur=8;ctx.fill();ctx.shadowBlur=0;
+  };
+  function drawLines(){
+    ctx.lineWidth=.7;
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y;
+        const d=dx*dx+dy*dy;
+        const maxD=CONFIG.maxDist*CONFIG.maxDist;
+        if(d<maxD){
+          ctx.beginPath();
+          ctx.strokeStyle='rgba(0,180,216,'+(0.35*(1-Math.sqrt(d)/CONFIG.maxDist)).toFixed(2)+')';
+          ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.stroke();
+        }
+      }
+    }
+  }
+  function drawMouseLines(){
+    if(mouse.x===null)return;
+    particles.forEach(function(p){
+      const dx=p.x-mouse.x,dy=p.y-mouse.y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<CONFIG.mouseRadius){
+        ctx.beginPath();ctx.strokeStyle='#90e0ef';ctx.globalAlpha=(1-d/CONFIG.mouseRadius)*.6;
+        ctx.lineWidth=1;ctx.moveTo(mouse.x,mouse.y);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.globalAlpha=1;
+      }
+    });
+  }
+  function animate(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(function(p){p.update();});
+    drawLines();drawMouseLines();
+    particles.forEach(function(p){p.draw();});
+    requestAnimationFrame(animate);
+    /* perf: avoid layout thrash */
+  }
+  resize();
+  particles=Array.from({length:CONFIG.count},function(){return new Particle();});
+  animate();
+  window.addEventListener('resize',function(){resize();particles=Array.from({length:CONFIG.count},function(){return new Particle();});});
+  window.addEventListener('mousemove',function(e){mouse.x=e.clientX;mouse.y=e.clientY;});
+  window.addEventListener('mouseleave',function(){mouse.x=null;mouse.y=null;});
+})();
+
+/* ════════ SCROLL PROGRESS BAR ════════ */
+(function(){
+  const bar = document.getElementById('scroll-progress');
+  window.addEventListener('scroll', function(){
+    const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    bar.style.width = Math.min(pct, 100) + '%';
+  });
+})();
+
+/* ════════ BACK TO TOP ════════ */
+(function(){
+  const btn = document.getElementById('back-to-top');
+  window.addEventListener('scroll', function(){
+    btn.classList.toggle('visible', window.scrollY > 400);
+  });
+  btn.addEventListener('click', function(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+
+/* ════════ TOAST HELPER ════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = '> ' + msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+/* ════════ SKILL BAR FILL ════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.skill-fill').forEach(function(bar){
+    const target = bar.style.width;
+    bar.style.width = '0';
+    setTimeout(function(){ bar.style.transition='width 1.2s cubic-bezier(0.4,0,0.2,1)'; bar.style.width=target; }, 300);
+  });
+});
+
+/* ════════ SCROLL REVEAL ════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  const items = document.querySelectorAll('.project-card, .skill-item, .timeline-item, .stat-card');
+  if(!('IntersectionObserver' in window)){ items.forEach(function(el){el.style.opacity='1';}); return; }
+  const obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){ entry.target.style.animationPlayState='running'; obs.unobserve(entry.target); }
+    });
+  }, { threshold: 0.1 });
+  items.forEach(function(el){ el.style.animationPlayState='paused'; obs.observe(el); });
+});
+
+/* ════════ ANIMATED COUNTERS ════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  const els = document.querySelectorAll('.counter-val');
+  if(!els.length) return;
+  const obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = parseInt(el.dataset.target, 10);
+      const suffix = el.dataset.suffix || '';
+      let start = 0;
+      const dur = 1400;
+      const step = Math.ceil(target / (dur / 16));
+      const timer = setInterval(function(){
+        start = Math.min(start + step, target);
+        el.textContent = start + suffix;
+        if(start >= target) clearInterval(timer);
+      }, 16);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  els.forEach(function(el){ obs.observe(el); });
+});
+
+/* ════════ TYPEWRITER ROLES ════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  const el = document.getElementById('typed-role');
+  if(!el) return;
+  const roles = [
+    'Machine Learning Engineer',
+    'Deep Learning Researcher',
+    'NLP Specialist',
+    'Computer Vision Engineer',
+    'AI Solutions Architect',
+  ];
+  let ri = 0, ci = 0, deleting = false;
+  function type(){
+    const word = roles[ri];
+    if(!deleting){
+      el.textContent = word.substring(0, ++ci);
+      if(ci === word.length){ deleting=true; setTimeout(type, 1800); return; }
+    } else {
+      el.textContent = word.substring(0, --ci);
+      if(ci === 0){ deleting=false; ri=(ri+1)%roles.length; }
+    }
+    setTimeout(type, deleting ? 45 : 80);
+  }
+  type();
+});
+
+/* ════════ PROJECT FILTER TABS ════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  const tabs = document.querySelectorAll('.filter-tab');
+  const cards = document.querySelectorAll('.project-card');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      const filter = tab.dataset.filter;
+      cards.forEach(function(card){
+        const techs = (card.dataset.techs || '').toLowerCase();
+        if(filter === 'all' || techs.includes(filter)){
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  });
+});
+
+/* ════════ SKILL CATEGORY FILTER ════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  const tabs = document.querySelectorAll('.skill-tab');
+  const items = document.querySelectorAll('.skill-item');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      const filter = tab.dataset.filter;
+      items.forEach(function(item){
+        if(filter === 'all' || item.dataset.category === filter){
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+});
+
+/* ════════ TYPING HERO GREETING ════════ */
+document.addEventListener('DOMContentLoaded', function(){
+  const el = document.querySelector('.hero-greeting');
+  if(!el) return;
+  const text = el.textContent;
+  el.textContent=''; el.style.opacity='1';
+  let i=0;
+  const timer=setInterval(function(){ el.textContent+=text[i++]; if(i>=text.length) clearInterval(timer); }, 35);
+});
+</script>
+
+</body>
+</html>
+
+<!-- ══ AI ASSISTANT — RAB.AI ══ -->
+<div id="ai-bubble" title="Chat with RAB.AI">🤖<div class="bubble-badge"></div></div>
+
+<div id="ai-panel">
+  <div id="ai-panel-header">
+    <div class="ai-info">
+      <div class="ai-avatar">🤖</div>
+      <div>
+        <div class="ai-name">RAB.AI</div>
+        <div class="ai-status">● online — powered by Claude</div>
+      </div>
+    </div>
+    <button id="ai-close">✕</button>
+  </div>
+  <div id="ai-tabs">
+    <button class="ai-tab active" data-pane="chat">💬 Chat</button>
+    <button class="ai-tab" data-pane="explain">🔍 Projects</button>
+    <button class="ai-tab" data-pane="contact-ai">✉️ Contact</button>
+  </div>
+
+  <!-- CHAT -->
+  <div class="ai-pane active" id="pane-chat">
+    <div class="quick-prompts">
+      <span class="quick-prompt" data-q="Who is Rabiul Islam?">Who are you?</span>
+      <span class="quick-prompt" data-q="What ML skills does Rabiul have?">Skills?</span>
+      <span class="quick-prompt" data-q="What projects has Rabiul built?">Projects?</span>
+      <span class="quick-prompt" data-q="Is Rabiul available for hire?">Hire?</span>
+    </div>
+    <div id="chat-messages">
+      <div class="msg bot">
+        <div class="msg-avatar">🤖</div>
+        <div class="msg-bubble">Hi! I'm RAB.AI — Rabiul's AI assistant. Ask me anything about his skills, projects, experience, or availability!</div>
+      </div>
+    </div>
+    <div id="chat-input-row">
+      <input id="chat-input" type="text" placeholder="Ask me anything..." autocomplete="off">
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+
+  <!-- EXPLAIN -->
+  <div class="ai-pane" id="pane-explain">
+    <div id="explain-pane">
+      <p style="color:#2d7da0;font-size:.75rem;font-family:'Share Tech Mono',monospace;margin-bottom:.75rem;">&gt; Click a project for an AI explanation</p>
+      <div class="explain-project" data-title="BanglaLLM — Bengali Language Model" data-tech="PyTorch, HuggingFace, LoRA, FastAPI, Docker"><h4>BanglaLLM</h4><p>PyTorch · HuggingFace · LoRA</p></div>
+      <div class="explain-project" data-title="MedVision — Medical Image Classifier" data-tech="TensorFlow, EfficientNet-B4, GradCAM, Keras"><h4>MedVision</h4><p>TensorFlow · EfficientNet · GradCAM</p></div>
+      <div class="explain-project" data-title="CropYield AI — Agricultural Prediction" data-tech="PyTorch, LSTM, Attention, MLflow, Streamlit"><h4>CropYield AI</h4><p>PyTorch · LSTM · MLflow</p></div>
+      <div class="explain-project" data-title="RecoSys — Recommendation Engine" data-tech="PySpark, FastAPI, Redis, PostgreSQL"><h4>RecoSys</h4><p>PySpark · FastAPI · Redis</p></div>
+      <div class="explain-project" data-title="AutoML Dashboard" data-tech="Scikit-learn, Optuna, React, Django"><h4>AutoML Dashboard</h4><p>Scikit-learn · Optuna · React</p></div>
+      <div id="explain-result"></div>
+    </div>
+  </div>
+
+  <!-- CONTACT DRAFT -->
+  <div class="ai-pane" id="pane-contact-ai">
+    <div id="contact-ai-pane">
+      <p style="color:#2d7da0;font-size:.75rem;font-family:'Share Tech Mono',monospace;margin-bottom:.5rem;">&gt; Describe your request — AI drafts the message</p>
+      <label>YOUR NAME</label>
+      <input id="ca-name" type="text" placeholder="e.g. Sarah Ahmed">
+      <label>PURPOSE</label>
+      <input id="ca-purpose" type="text" placeholder="job offer / collaboration / freelance">
+      <label>DETAILS</label>
+      <textarea id="ca-details" placeholder="Briefly describe what you need..."></textarea>
+      <button id="ai-draft-btn">[ generate_message() ]</button>
+      <div id="ai-draft-output"></div>
+      <button id="copy-draft-btn">[ copy to clipboard ]</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── getCookie helper for CSRF ── */
+function getCookie(name) {
+  var v = null;
+  if (document.cookie && document.cookie !== '') {
+    document.cookie.split(';').forEach(function(c) {
+      c = c.trim();
+      if (c.startsWith(name + '=')) { v = decodeURIComponent(c.slice(name.length + 1)); }
+    });
+  }
+  return v;
+}
+
+/* ── Central AI fetch via Django proxy ── */
+async function callAI(messages, system) {
+  try {
+    var resp = await fetch('/api/ai/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken') || ''
+      },
+      body: JSON.stringify({ system: system, messages: messages })
+    });
+    var data = await resp.json();
+    if (data.content && data.content[0]) return data.content[0].text;
+    if (data.error) return 'Error: ' + (typeof data.error === 'string' ? data.error.substring(0, 120) : JSON.stringify(data.error));
+    return 'Unexpected response from server.';
+  } catch(e) {
+    return 'Network error: ' + e.message;
+  }
+}
+
+var CONTEXT = "You are RAB.AI, the AI assistant for Md. Rabiul Islam's portfolio. He is a Machine Learning Engineer in Dhaka, Bangladesh. Skills: Python 95%, TensorFlow 92%, PyTorch 88%, HuggingFace 90%, Scikit-learn 94%, Keras 85%, FastAPI 87%, Docker 83%, React 72%, Pandas/NumPy 96%, MLflow 75%, OpenCV 84%. Projects: (1) BanglaLLM — fine-tuned LLaMA-2 on 2M+ Bengali texts using LoRA, state-of-the-art NLP results. (2) MedVision — chest X-ray classifier for 14 diseases using EfficientNet-B4 + GradCAM. (3) CropYield AI — LSTM+Attention crop yield forecasting partnered with BARI. (4) RecoSys — hybrid recommendation engine for 100k+ users. (5) AutoML Dashboard — no-code ML platform with Optuna. Experience: ML Engineer at DataMinds AI (2023-present), Junior ML Engineer at TechVision Labs (2022-2023). Education: B.Sc. CSE BUET CGPA 3.8, DeepLearning.AI Specialization. Open to full-time roles, research, and freelance. Answer concisely under 100 words.";
+
+/* ── Panel toggle ── */
+var bubble = document.getElementById('ai-bubble');
+var panel  = document.getElementById('ai-panel');
+bubble.addEventListener('click', function() { panel.classList.toggle('open'); });
+document.getElementById('ai-close').addEventListener('click', function() { panel.classList.remove('open'); });
+
+/* ── Tab switching ── */
+document.querySelectorAll('.ai-tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.ai-tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.ai-pane').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById('pane-' + tab.dataset.pane).classList.add('active');
+  });
+});
+
+/* ── Chat ── */
+var chatMsgs = document.getElementById('chat-messages');
+var chatInput = document.getElementById('chat-input');
+var chatHistory = [];
+
+function appendMsg(role, text) {
+  var wrap = document.createElement('div');
+  wrap.className = 'msg ' + role;
+  var av = document.createElement('div'); av.className = 'msg-avatar';
+  av.textContent = role === 'bot' ? '🤖' : '👤';
+  var bub = document.createElement('div'); bub.className = 'msg-bubble';
+  bub.textContent = text;
+  wrap.appendChild(av); wrap.appendChild(bub);
+  chatMsgs.appendChild(wrap);
+  chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  return bub;
+}
+
+function showTyping() {
+  var wrap = document.createElement('div'); wrap.className = 'msg bot'; wrap.id = 'typing-ind';
+  var av = document.createElement('div'); av.className = 'msg-avatar'; av.textContent = '🤖';
+  var bub = document.createElement('div'); bub.className = 'msg-bubble';
+  bub.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  wrap.appendChild(av); wrap.appendChild(bub);
+  chatMsgs.appendChild(wrap); chatMsgs.scrollTop = chatMsgs.scrollHeight;
+}
+
+async function sendChat(text) {
+  if (!text.trim()) return;
+  text = text.trim();
+  appendMsg('user', text);
+  chatInput.value = '';
+  chatHistory.push({ role: 'user', content: text });
+  document.getElementById('chat-send').disabled = true;
+  showTyping();
+  var reply = await callAI(chatHistory, CONTEXT);
+  var t = document.getElementById('typing-ind'); if (t) t.remove();
+  appendMsg('bot', reply);
+  chatHistory.push({ role: 'assistant', content: reply });
+  document.getElementById('chat-send').disabled = false;
+  chatInput.focus();
+}
+
+document.getElementById('chat-send').addEventListener('click', function() { sendChat(chatInput.value); });
+chatInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendChat(chatInput.value); });
+document.querySelectorAll('.quick-prompt').forEach(function(btn) {
+  btn.addEventListener('click', function() { sendChat(btn.dataset.q); });
+});
+
+/* ── Project Explainer ── */
+var explainResult = document.getElementById('explain-result');
+document.querySelectorAll('.explain-project').forEach(function(card) {
+  card.addEventListener('click', async function() {
+    explainResult.style.display = 'block';
+    explainResult.textContent = '> analyzing...';
+    var prompt = 'Explain the ML project "' + card.dataset.title + '" (built with: ' + card.dataset.tech + ') in 3 sentences for a technical recruiter: what problem it solves, the ML approach, and why it is impressive.';
+    var reply = await callAI([{ role: 'user', content: prompt }], CONTEXT);
+    explainResult.textContent = '> ' + reply;
+  });
+});
+
+/* ── Contact Draft ── */
+document.getElementById('ai-draft-btn').addEventListener('click', async function() {
+  var name    = document.getElementById('ca-name').value.trim() || 'A visitor';
+  var purpose = document.getElementById('ca-purpose').value.trim() || 'general inquiry';
+  var details = document.getElementById('ca-details').value.trim();
+  var btn = document.getElementById('ai-draft-btn');
+  var out = document.getElementById('ai-draft-output');
+  var copyBtn = document.getElementById('copy-draft-btn');
+  btn.textContent = '[ generating... ]'; btn.disabled = true;
+  out.style.display = 'block'; out.textContent = '> drafting...'; copyBtn.style.display = 'none';
+  var prompt = 'Write a short professional email (under 120 words) from "' + name + '" to Md. Rabiul Islam, ML Engineer, for: "' + purpose + '". Details: "' + details + '". Include Subject: line at top.';
+  var reply = await callAI([{ role: 'user', content: prompt }], '');
+  out.textContent = reply; copyBtn.style.display = 'block';
+  btn.textContent = '[ generate_message() ]'; btn.disabled = false;
+});
+
+document.getElementById('copy-draft-btn').addEventListener('click', function() {
+  var out = document.getElementById('ai-draft-output');
+  navigator.clipboard.writeText(out.textContent).then(function() {
+    document.getElementById('copy-draft-btn').textContent = '[ copied! ✓ ]';
+    setTimeout(function() { document.getElementById('copy-draft-btn').textContent = '[ copy to clipboard ]'; }, 2000);
+  });
+});
+</script>
+</body>

@@ -1,0 +1,89 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}Resume — ML Portfolio{% endblock %}
+{% block content %}
+<div class="resume-page">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
+    <p style="color:#00ff41;font-size:.8rem;letter-spacing:.2em;">// CV_EXPORT_MODULE</p>
+    <button onclick="window.print()" class="btn btn-primary">[ print_cv() ]</button>
+  </div>
+
+  {% if profile %}
+  <div class="resume-header">
+    <div>
+      <h1 class="resume-name" style="color:#00ff41;text-shadow:0 0 15px rgba(0,255,65,0.3);">{{ profile.full_name|upper }}</h1>
+      <p class="resume-title-line" style="font-family:'Share Tech Mono',monospace;">&gt; {{ profile.title }}</p>
+    </div>
+    <div class="resume-contact" style="font-family:'Share Tech Mono',monospace;">
+      {% if profile.email %}{{ profile.email }}<br>{% endif %}
+      {% if profile.phone %}{{ profile.phone }}<br>{% endif %}
+      {% if profile.location %}{{ profile.location }}<br>{% endif %}
+      {% if profile.github %}<a href="{{ profile.github }}" style="color:#00ff41;">github</a> &nbsp;{% endif %}
+      {% if profile.linkedin %}<a href="{{ profile.linkedin }}" style="color:#00ff41;">linkedin</a>{% endif %}
+    </div>
+  </div>
+
+  {% if profile.bio %}
+  <div class="resume-section">
+    <h3 class="resume-section-title">// SUMMARY</h3>
+    <p style="color:#ccffcc;">&gt; {{ profile.bio }}</p>
+  </div>
+  {% endif %}
+
+  {% if experiences %}
+  <div class="resume-section">
+    <h3 class="resume-section-title">// EXPERIENCE</h3>
+    {% for exp in experiences %}
+    <div style="margin-bottom:1.25rem;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <strong style="color:#ccffcc;">{{ exp.position }}</strong>
+        <span style="color:#4a8c4a;font-size:.85rem;">{{ exp.start_date|date:"M Y" }} — {% if exp.currently_working %}present{% else %}{{ exp.end_date|date:"M Y" }}{% endif %}</span>
+      </div>
+      <p style="color:#00ff41;font-size:.9rem;">{{ exp.company }}{% if exp.location %} // {{ exp.location }}{% endif %}</p>
+      {% if exp.description %}<p style="color:#4a8c4a;font-size:.9rem;margin-top:.3rem;">&gt; {{ exp.description }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if educations %}
+  <div class="resume-section">
+    <h3 class="resume-section-title">// EDUCATION</h3>
+    {% for edu in educations %}
+    <div style="margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;">
+        <strong style="color:#ccffcc;">{{ edu.degree }} in {{ edu.field_of_study }}</strong>
+        <span style="color:#4a8c4a;font-size:.85rem;">{{ edu.start_year }} — {% if edu.currently_studying %}present{% else %}{{ edu.end_year }}{% endif %}</span>
+      </div>
+      <p style="color:#00ff41;font-size:.9rem;">{{ edu.institution }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if skills %}
+  <div class="resume-section">
+    <h3 class="resume-section-title">// TECH_STACK</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+      {% for skill in skills %}<span class="tech-tag">{{ skill.name }}</span>{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if projects %}
+  <div class="resume-section">
+    <h3 class="resume-section-title">// PROJECTS</h3>
+    {% for project in projects %}
+    <div style="margin-bottom:1rem;">
+      <strong style="color:#ccffcc;">{{ project.title }}</strong>
+      {% if project.github_url or project.live_url %}
+      — <span style="font-size:.85rem;">{% if project.github_url %}<a href="{{ project.github_url }}" style="color:#00ff41;">github</a>{% endif %}{% if project.live_url %} | <a href="{{ project.live_url }}" style="color:#00ff41;">demo</a>{% endif %}</span>
+      {% endif %}
+      <p style="color:#4a8c4a;font-size:.9rem;">&gt; {{ project.description|truncatewords:25 }}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem;">{% for tech in project.get_technologies_list %}<span class="tech-tag" style="font-size:.7rem;">{{ tech }}</span>{% endfor %}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

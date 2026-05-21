@@ -1,0 +1,90 @@
+{% extends 'portfolio/base.html' %}
+{% block title %}About — ML Portfolio{% endblock %}
+{% block content %}
+<div class="section">
+  <p style="color:#00b4d8;font-size:.8rem;letter-spacing:.2em;margin-bottom:.5rem;">// ABOUT_MODULE</p>
+  <h2 class="section-title">About Me</h2>
+
+  {% if profile %}
+  <div style="display:grid;grid-template-columns:260px 1fr;gap:3rem;align-items:start;margin-bottom:3rem;flex-wrap:wrap;">
+    <div style="text-align:center;">
+      {% if profile.profile_picture %}
+        <div class="profile-ring" style="display:inline-block;">
+          <img src="{{ profile.profile_picture.url }}" alt="{{ profile.full_name }}" style="width:220px;height:220px;">
+        </div>
+      {% else %}
+        <div class="profile-ring" style="display:inline-block;padding:4px;">
+          <div style="width:220px;height:220px;border-radius:50%;background:#031c36;display:flex;align-items:center;justify-content:center;font-size:5rem;">🤖</div>
+        </div>
+      {% endif %}
+      <div class="card" style="margin-top:1.5rem;font-size:.85rem;line-height:2.2;text-align:left;">
+        {% if profile.email %}<p style="color:#2d7da0;">&gt; email: <span style="color:#caf0f8;">{{ profile.email }}</span></p>{% endif %}
+        {% if profile.phone %}<p style="color:#2d7da0;">&gt; phone: <span style="color:#caf0f8;">{{ profile.phone }}</span></p>{% endif %}
+        {% if profile.location %}<p style="color:#2d7da0;">&gt; location: <span style="color:#caf0f8;">{{ profile.location }}</span></p>{% endif %}
+        {% if profile.github %}<p style="color:#2d7da0;">&gt; github: <a href="{{ profile.github }}" style="color:#00b4d8;">link ↗</a></p>{% endif %}
+        {% if profile.linkedin %}<p style="color:#2d7da0;">&gt; linkedin: <a href="{{ profile.linkedin }}" style="color:#00b4d8;">link ↗</a></p>{% endif %}
+      </div>
+    </div>
+    <div>
+      <h1 style="font-size:2rem;font-weight:800;color:#00b4d8;text-shadow:0 0 15px rgba(0,180,216,0.4);margin-bottom:.5rem;">{{ profile.full_name }}</h1>
+      <p style="color:#2d7da0;margin-bottom:1rem;font-family:'Share Tech Mono',monospace;">&gt; <span id="typed-role">Machine Learning Engineer</span></p>
+      <p style="color:#caf0f8;line-height:1.8;">{{ profile.bio }}</p>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if experiences %}
+  <p style="color:#00b4d8;font-size:.8rem;letter-spacing:.2em;margin-bottom:.5rem;">//WORK_EXPERIENCE</p>
+  <h3 class="section-title" style="font-size:1.4rem;">Experience</h3>
+  <div class="divider"></div>
+  <div class="timeline mt-3">
+    {% for exp in experiences %}
+    <div class="timeline-item">
+      <p class="timeline-period">{{ exp.start_date|date:"M Y" }} — {% if exp.currently_working %}present{% else %}{{ exp.end_date|date:"M Y" }}{% endif %}</p>
+      <h4 class="timeline-title" style="color:#caf0f8;">{{ exp.position }}</h4>
+      <p class="timeline-sub">{{ exp.company }} {% if exp.location %}// {{ exp.location }}{% endif %}</p>
+      {% if exp.description %}<p class="timeline-desc">&gt; {{ exp.description }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if educations %}
+  <p style="color:#00b4d8;font-size:.8rem;letter-spacing:.2em;margin-bottom:.5rem;margin-top:2.5rem;">//EDUCATION</p>
+  <h3 class="section-title" style="font-size:1.4rem;">Education</h3>
+  <div class="divider"></div>
+  <div class="timeline mt-3">
+    {% for edu in educations %}
+    <div class="timeline-item">
+      <p class="timeline-period">{{ edu.start_year }} — {% if edu.currently_studying %}present{% else %}{{ edu.end_year }}{% endif %}</p>
+      <h4 class="timeline-title" style="color:#caf0f8;">{{ edu.degree }} in {{ edu.field_of_study }}</h4>
+      <p class="timeline-sub">{{ edu.institution }}</p>
+      {% if edu.description %}<p class="timeline-desc">&gt; {{ edu.description }}</p>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if skills %}
+  <p style="color:#00b4d8;font-size:.8rem;letter-spacing:.2em;margin-bottom:.5rem;margin-top:2.5rem;">//TECH_STACK</p>
+  <h3 class="section-title" style="font-size:1.4rem;">Skills</h3>
+  <div class="divider"></div>
+  <div class="skill-tabs mt-3">
+    <button class="skill-tab active" data-filter="all">All</button>
+    <button class="skill-tab" data-filter="language">Languages</button>
+    <button class="skill-tab" data-filter="framework">Frameworks</button>
+    <button class="skill-tab" data-filter="tool">Tools</button>
+    <button class="skill-tab" data-filter="database">Databases</button>
+  </div>
+  <div class="skills-grid">
+    {% for skill in skills %}
+    <div class="skill-item" data-category="{{ skill.category }}">
+      <div class="skill-header"><span style="color:#caf0f8;">{{ skill.name }}</span><span style="color:#00b4d8;">{{ skill.proficiency }}%</span></div>
+      <div class="skill-bar"><div class="skill-fill" style="width:{{ skill.proficiency }}%"></div></div>
+      <p style="font-size:.72rem;color:#2d7da0;margin-top:.4rem;">{{ skill.get_level_display|upper }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
