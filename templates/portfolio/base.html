@@ -38,11 +38,11 @@
 <nav class="navbar">
   <a href="/" class="navbar-brand">ML</a>
   <ul class="nav-links">
-    <li><a href="/">&gt; home</a></li>
-    <li><a href="/#about">&gt; about</a></li>
-    <li><a href="/#projects">&gt; projects</a></li>
-    <li><a href="/#resume">&gt; resume</a></li>
-    <li><a href="/#contact">&gt; contact</a></li>
+    <li><a href="/">&gt; Home</a></li>
+    <li><a href="/#about">&gt; About</a></li>
+    <li><a href="/#projects">&gt; Projects</a></li>
+    <li><a href="/#resume">&gt; Resume</a></li>
+    <li><a href="/#contact">&gt; Contact</a></li>
     {% if user.is_authenticated %}
       <li><a href="{% url 'dashboard' %}" class="btn btn-outline btn-sm">[ dashboard ]</a></li>
       <li><a href="{% url 'logout' %}" style="color:#2d7da0;">logout</a></li>
